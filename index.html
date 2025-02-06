@@ -241,6 +241,23 @@
             margin: 0;
         }
 
+        .time-container {
+            display: flex;
+            flex-direction: column;
+            /* Sắp xếp theo chiều dọc */
+            align-items: center;
+            /* Căn giữa theo trục ngang */
+
+            /* Khoảng cách giữa các phần tử */
+        }
+
+        .middle-heart {
+            font-size: 48px;
+            /* Kích thước của trái tim */
+            color: #d32f2f;
+            /* Màu của trái tim */
+        }
+
         /* Style cho button "bức thư" */
         .decor-button {
             background-color: #fff;
@@ -320,8 +337,14 @@
                 <img class="top-gif" src="images/gifs/giftest.gif" alt="GIF">
             </div>
 
-            <!-- Thẻ H2 hiển thị mốc thời gian -->
-            <h1>14/02/2021  14/02/2025</h1>
+            <!-- Thẻ H1 hiển thị mốc thời gian -->
+            <div class="time-container">
+                <h1 class="time-start">14/02/2021</h1>
+                <div class="middle-heart">
+                    &#9829;
+                </div>
+                <h1 class="time-end">14/02/2025</h1>
+            </div>
 
             <!-- Container cho ảnh album nằm phía dưới -->
             <div class="image-container">
