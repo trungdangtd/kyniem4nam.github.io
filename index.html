@@ -112,6 +112,17 @@
             top: -100px;
         }
 
+        /* Phần tử hiển thị số % */
+        #percentage-display {
+            position: absolute;
+            top: calc(50% + 120px);
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 24px;
+            color: #d32f2f;
+            z-index: 10;
+        }
+
         /* Popup hiển thị theo luồng tài liệu */
         #popup {
             display: none;
@@ -299,6 +310,8 @@
 <body>
     <div id="heart-container"></div>
     <div id="main-heart"></div>
+    <!-- Phần tử hiển thị % bên dưới trái tim chính -->
+    <div id="percentage-display">0%</div>
 
     <div id="popup">
         <div class="album">
@@ -368,6 +381,9 @@
         const initialColor = { r: 255, g: 182, b: 193 }; // #ffb6c1
         const finalColor = { r: 255, g: 64, b: 129 };      // #ff4081
 
+        // Biến lưu giá trị % đã hiển thị (để chuyển mượt)
+        let displayedPercentage = 0;
+
         function toHex(num) {
             let hex = num.toString(16);
             return hex.length === 1 ? '0' + hex : hex;
@@ -418,6 +434,23 @@
             updateAlbumImage();
         }
 
+        // Hàm chuyển số % mượt mà
+        function animatePercentage(from, to, duration = 300) {
+            const percentageDisplay = document.getElementById('percentage-display');
+            const startTime = performance.now();
+
+            function update() {
+                const now = performance.now();
+                const progress = Math.min((now - startTime) / duration, 1);
+                const currentValue = Math.round(from + (to - from) * progress);
+                percentageDisplay.textContent = currentValue + '%';
+                if (progress < 1) {
+                    requestAnimationFrame(update);
+                }
+            }
+            requestAnimationFrame(update);
+        }
+
         function handleHeartClick() {
             clickCount++;
             const newColor = getCurrentColor();
@@ -427,6 +460,12 @@
             setTimeout(() => {
                 mainHeart.classList.remove('pulse');
             }, 200);
+
+            // Tính toán % mới (giá trị tối đa 100% khi đạt requiredClicks)
+            const targetPercentage = Math.round(Math.min(clickCount, requiredClicks) / requiredClicks * 100);
+            animatePercentage(displayedPercentage, targetPercentage, 300);
+            displayedPercentage = targetPercentage; // cập nhật giá trị đã hiển thị
+
             if (clickCount >= requiredClicks) {
                 openPopup();
             }
@@ -442,6 +481,8 @@
             mainHeart.style.transform = 'translate(-50%, -50%) rotate(45deg) scale(0)';
             setTimeout(() => {
                 mainHeart.style.display = 'none';
+                // Ẩn luôn phần hiển thị %
+                document.getElementById('percentage-display').style.display = 'none';
                 popup.style.display = 'block';
                 currentImageIndex = 0;
                 updateAlbumImage();
