@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Kỷ Niệm 4 Năm</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Link Google Font cho kiểu chữ thư (Great Vibes) và cho milestone (Montserrat) -->
+    <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Montserrat:wght@500&display=swap"
+        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Pattaya&display=swap" rel="stylesheet">
+
+    <style>
+        /* Các thiết lập chung */
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #f3e5f5;
+            font-family: Arial, sans-serif;
+        }
+
+        /* Container trái tim nhỏ rơi */
+        #heart-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        .heart {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background-color: rgba(255, 64, 129, 0.5);
+            transform: rotate(45deg);
+            animation: fall 10s linear infinite;
+        }
+
+        @keyframes fall {
+            to {
+                transform: rotate(45deg) translateY(100vh);
+                opacity: 0;
+            }
+        }
+
+        /* Hiệu ứng trái tim chính */
+        @keyframes pulse {
+            0% {
+                transform: translate(-50%, -50%) rotate(45deg) scale(1);
+            }
+
+            50% {
+                transform: translate(-50%, -50%) rotate(45deg) scale(1.1);
+            }
+
+            100% {
+                transform: translate(-50%, -50%) rotate(45deg) scale(1);
+            }
+        }
+
+        .pulse {
+            animation: pulse 0.4s ease;
+        }
+
+        #main-heart {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 200px;
+            height: 200px;
+            background-color: var(--heart-color, #ffb6c1);
+            transform: translate(-50%, -50%) rotate(45deg);
+            cursor: pointer;
+            z-index: 10;
+            transition: all 0.5s ease, background-color 0.3s ease;
+        }
+
+        #main-heart::before,
+        #main-heart::after {
+            content: "";
+            position: absolute;
+            width: 200px;
+            height: 200px;
+            background-color: var(--heart-color, #ffb6c1);
+            border-radius: 50%;
+            transition: background-color 0.3s ease;
+        }
+
+        #main-heart::before {
+            left: -100px;
+        }
+
+        #main-heart::after {
+            top: -100px;
+        }
+
+        /* Popup hiển thị theo luồng tài liệu */
+        #popup {
+            display: none;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: white;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            width: 90%;
+            max-width: 400px;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        /* Container album */
+        .album {
+            position: relative;
+            margin-bottom: 15px;
+            overflow: hidden;
+            border-radius: 10px;
+        }
+
+        /* Container cho hình GIF (nằm phía trên) */
+        .gif-container {
+            width: 100%;
+            height: 500px;
+            /* Chiều cao dành cho GIF */
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+
+        .gif-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            border-radius: 10px;
+        }
+
+        /* Thẻ H2 hiển thị mốc thời gian */
+        .album h2 {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 24px;
+            color: #d32f2f;
+            margin: 10px 0;
+        }
+
+        /* Container cho ảnh album (nằm phía dưới) */
+        .image-container {
+            position: relative;
+            height: 400px;
+            overflow: hidden;
+        }
+
+        .image-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            border-radius: 10px;
+            transition: opacity 0.5s ease;
+        }
+
+        /* Ẩn nút chuyển ảnh */
+        .image-container .arrow {
+            display: none;
+        }
+
+        /* Tiêu đề popup */
+        #popup h1 {
+            font-family: 'Great Vibes', cursive;
+            color: #d32f2f;
+            font-size: 36px;
+            margin-bottom: 10px;
+        }
+
+        /* Style cho container bức thư */
+        #letter-container {
+            display: none;
+            /* Ẩn ban đầu */
+            margin: 20px auto;
+            padding: 20px;
+            width: 90%;
+            max-width: 350px;
+            background-color: #fff7e6;
+            border: 2px solid #d2b48c;
+            border-radius: 10px;
+            box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+            position: relative;
+            text-align: left;
+        }
+
+        /* Hiệu ứng góc bức thư (flap) */
+        #letter-container::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 0;
+            height: 0;
+            border-top: 30px solid #d2b48c;
+            border-left: 30px solid transparent;
+        }
+
+        /* Đổi font chữ của love-message */
+        #love-message {
+            font-family: "Pattaya", serif;
+            font-size: 18px;
+            line-height: 1.6;
+            color: #333;
+            margin: 0;
+        }
+
+        /* Style cho button "bức thư" */
+        .decor-button {
+            background-color: #fff;
+            border: 2px solid #d32f2f;
+            border-radius: 5px;
+            padding: 10px 20px;
+            font-size: 16px;
+            color: #d32f2f;
+            cursor: pointer;
+            display: inline-block;
+            margin: 20px auto;
+            transition: background-color 0.3s ease;
+        }
+
+        .decor-button:hover {
+            background-color: #ffe6e6;
+        }
+
+        @media (max-width: 480px) {
+            #main-heart {
+                width: 150px;
+                height: 150px;
+            }
+
+            #main-heart::before,
+            #main-heart::after {
+                width: 150px;
+                height: 150px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div id="heart-container"></div>
+    <div id="main-heart"></div>
+
+    <div id="popup">
+        <div class="album">
+            <!-- Container cho GIF nằm phía trên -->
+            <div class="gif-container">
+                <img class="top-gif" src="images/gifs/giftest.gif" alt="GIF">
+            </div>
+
+            <!-- Thẻ H2 hiển thị mốc thời gian -->
+            <h1>14/02/2021 - 14/02/2025</h1>
+
+            <!-- Container cho ảnh album nằm phía dưới -->
+            <div class="image-container">
+                <img id="anniversary-image" src="images/avtvjp.jpg" alt="Kỷ niệm">
+                <!-- Các nút chuyển ảnh được ẩn đi -->
+                <div class="arrow left" id="left-arrow">&#10094;</div>
+                <div class="arrow right" id="right-arrow">&#10095;</div>
+            </div>
+        </div>
+        <h1>Kỷ Niệm 4 Năm</h1>
+
+        <!-- Button "Thư Tình" hiển thị giao diện bức thư -->
+        <button id="show-message-btn" class="decor-button">✉ Mở Thư</button>
+
+        <!-- Container bức thư chứa thông điệp -->
+        <div id="letter-container">
+            <p id="love-message">Bốn năm đã qua, tình yêu của chúng ta vẫn luôn mạnh mẽ và đẹp đẽ!</p>
+        </div>
+    </div>
+
+    <!-- Audio và JavaScript -->
+    <audio id="soft-sound">
+        <source src="sounds/celebra.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="background-music" loop>
+        <source src="sounds/duchotanthe.mp3" type="audio/mpeg">
+    </audio>
+
+    <script>
+        // Tạo hiệu ứng rơi của các trái tim nhỏ
+        function createHearts() {
+            const container = document.getElementById('heart-container');
+            for (let i = 0; i < 100; i++) {
+                const heart = document.createElement('div');
+                heart.classList.add('heart');
+                heart.style.left = `${Math.random() * 100}%`;
+                heart.style.animationDelay = `${Math.random() * 10}s`;
+                heart.style.opacity = Math.random();
+                container.appendChild(heart);
+            }
+        }
+
+        let clickCount = 0;
+        const requiredClicks = 10;
+        const initialColor = { r: 255, g: 182, b: 193 }; // #ffb6c1
+        const finalColor = { r: 255, g: 64, b: 129 };      // #ff4081
+
+        function toHex(num) {
+            let hex = num.toString(16);
+            return hex.length === 1 ? '0' + hex : hex;
+        }
+
+        function getCurrentColor() {
+            const factor = Math.min(clickCount / requiredClicks, 1);
+            const r = initialColor.r;
+            const g = Math.round(initialColor.g + (finalColor.g - initialColor.g) * factor);
+            const b = Math.round(initialColor.b + (finalColor.b - initialColor.b) * factor);
+            return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
+        }
+
+        const albumImages = [
+            "images/z6294440817810_a01b97d0b45e9d430de62d3d716eacf4.jpg",
+            "images/z6294440816371_32b1324691aa8e54ae4ac8a0cbe59d14.jpg",
+            "images/z6294440816207_4ad70c91299a8b12718e1d4bb7e8ba90.jpg",
+            "images/z6294440814963_627886d14c2c5762accd6590d2daa006.jpg",
+            "images/z6294440814879_78ad05ab30a752f695e2b46522fade9f.jpg",
+            "images/z6294440813537_703092245eced87668ee9babfda2780d.jpg",
+            "images/z6294440812367_66dd08d1b64ff765b179a4ad23c90e7a.jpg",
+            "images/z6294440811654_43e18431cd9a128204317590e82379a6.jpg",
+            "images/z6294440811575_bb17cf04f4f3097fc67703004df50ca8.jpg",
+            "images/z6294440811436_c2d8e6de52640becfa5d1b303ef2668c.jpg",
+            "images/z6294440810992_40a51b60be9243a24460e92ba4cb5a74.jpg"
+        ];
+        let currentImageIndex = 0;
+
+        // Cập nhật ảnh album với hiệu ứng mờ (fade)
+        function updateAlbumImage() {
+            const imageElement = document.getElementById('anniversary-image');
+            // Fade-out
+            imageElement.style.opacity = 0;
+            setTimeout(() => {
+                imageElement.src = albumImages[currentImageIndex];
+                // Sau khi đổi ảnh, fade-in
+                imageElement.style.opacity = 1;
+            }, 300);
+        }
+
+        function showPreviousImage() {
+            currentImageIndex = (currentImageIndex - 1 + albumImages.length) % albumImages.length;
+            updateAlbumImage();
+        }
+
+        function showNextImage() {
+            currentImageIndex = (currentImageIndex + 1) % albumImages.length;
+            updateAlbumImage();
+        }
+
+        function handleHeartClick() {
+            clickCount++;
+            const newColor = getCurrentColor();
+            document.getElementById('main-heart').style.setProperty('--heart-color', newColor);
+            const mainHeart = document.getElementById('main-heart');
+            mainHeart.classList.add('pulse');
+            setTimeout(() => {
+                mainHeart.classList.remove('pulse');
+            }, 200);
+            if (clickCount >= requiredClicks) {
+                openPopup();
+            }
+        }
+
+        function openPopup() {
+            const mainHeart = document.getElementById('main-heart');
+            const popup = document.getElementById('popup');
+            const softSound = document.getElementById('soft-sound');
+            const backgroundMusic = document.getElementById('background-music');
+            softSound.play();
+            backgroundMusic.play();
+            mainHeart.style.transform = 'translate(-50%, -50%) rotate(45deg) scale(0)';
+            setTimeout(() => {
+                mainHeart.style.display = 'none';
+                popup.style.display = 'block';
+                currentImageIndex = 0;
+                updateAlbumImage();
+                setTimeout(() => {
+                    popup.style.opacity = '1';
+                }, 50);
+            }, 500);
+        }
+
+        // Sự kiện khi nhấn vào trái tim chính
+        document.getElementById('main-heart').addEventListener('click', handleHeartClick);
+        document.getElementById('left-arrow').addEventListener('click', (e) => {
+            e.stopPropagation();
+            showPreviousImage();
+        });
+        document.getElementById('right-arrow').addEventListener('click', (e) => {
+            e.stopPropagation();
+            showNextImage();
+        });
+
+        // Sự kiện cho button "Mở Thư" để hiển thị container bức thư chứa thông điệp
+        document.getElementById('show-message-btn').addEventListener('click', () => {
+            const letterContainer = document.getElementById('letter-container');
+            if (letterContainer.style.display === 'none' || letterContainer.style.display === '') {
+                letterContainer.style.display = 'block';
+            }
+        });
+
+        createHearts();
+
+        // Tự động chuyển ảnh mỗi 3 giây
+        setInterval(() => {
+            showNextImage();
+        }, 3000);
+    </script>
+</body>
+
+</html>
