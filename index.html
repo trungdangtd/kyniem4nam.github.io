@@ -20,8 +20,8 @@
             font-family: Arial, sans-serif;
         }
 
-        /* Container trái tim nhỏ rơi - đặt ở background */
-        #heart-container {
+        /* Container cho hình tròn rơi */
+        #circle-container {
             position: fixed;
             top: 0;
             left: 0;
@@ -30,32 +30,29 @@
             pointer-events: none;
             overflow: hidden;
             z-index: 0;
-            /* Các trái tim rơi nằm ở background */
         }
 
-        .heart {
+        .circle {
             position: absolute;
-            /* Kích thước sẽ được set ngẫu nhiên qua JS */
-            background-color: rgba(255, 64, 129, 0.5);
-            transform: rotate(45deg);
-            animation: fall linear infinite;
+            border-radius: 50%;
+            animation: fallAndSpin linear infinite;
             animation-timing-function: ease-in-out;
         }
 
-        /* Hiệu ứng rơi với drift ngang, scale và opacity thay đổi */
-        @keyframes fall {
+        /* Hiệu ứng rơi và xoay cho hình tròn */
+        @keyframes fallAndSpin {
             0% {
-                transform: translate(0, 0) rotate(45deg) scale(1);
+                transform: translate(0, -20px) rotate(0deg) scale(1);
                 opacity: 1;
             }
 
             50% {
-                transform: translate(30px, 50vh) rotate(45deg) scale(1);
+                transform: translate(30px, 50vh) rotate(180deg) scale(0.8);
                 opacity: 0.7;
             }
 
             100% {
-                transform: translate(-30px, 100vh) rotate(45deg) scale(0.5);
+                transform: translate(-30px, 100vh) rotate(360deg) scale(0.5);
                 opacity: 0;
             }
         }
@@ -241,22 +238,7 @@
             margin: 0;
         }
 
-        .time-container {
-            display: flex;
-            flex-direction: column;
-            /* Sắp xếp theo chiều dọc */
-            align-items: center;
-            /* Căn giữa theo trục ngang */
 
-            /* Khoảng cách giữa các phần tử */
-        }
-
-        .middle-heart {
-            font-size: 48px;
-            /* Kích thước của trái tim */
-            color: #d32f2f;
-            /* Màu của trái tim */
-        }
 
         /* Style cho button "bức thư" */
         .decor-button {
@@ -321,11 +303,56 @@
                 font-size: 33px;
             }
         }
+
+        .reveal-text {
+            text-align: center;
+            font-family: 'Great Vibes', cursive;
+            color: #d32f2f;
+        }
+
+        .reveal-text .reveal-line {
+            display: block;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .reveal-text .reveal-line span {
+            display: inline-block;
+            opacity: 0;
+            transform: translateX(-100%);
+            animation: revealLetter 0.05s forwards;
+        }
+
+        .reveal-text .reveal-line-1 {
+            font-size: 48px;
+        }
+
+        .reveal-text .reveal-line-2 {
+            font-size: 30px;
+            margin-top: 5px;
+        }
+
+        @keyframes revealLetter {
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .reveal-text .reveal-line-1 {
+                font-size: 36px;
+            }
+
+            .reveal-text .reveal-line-2 {
+                font-size: 25px;
+            }
+        }
     </style>
 </head>
 
 <body>
-    <div id="heart-container"></div>
+    <div id="circle-container"></div>
     <div id="main-heart"></div>
     <!-- Phần tử hiển thị % bên dưới trái tim chính -->
     <div id="percentage-display">0%</div>
@@ -337,14 +364,7 @@
                 <img class="top-gif" src="images/gifs/giftest.gif" alt="GIF">
             </div>
 
-            <!-- Thẻ H1 hiển thị mốc thời gian -->
-            <div class="time-container">
-                <h1 class="time-start">14/02/2021</h1>
-                <div class="middle-heart">
-                    &#9829;
-                </div>
-                <h1 class="time-end">14/02/2025</h1>
-            </div>
+            <div class="reveal-text" id="happy-text"></div>
 
             <!-- Container cho ảnh album nằm phía dưới -->
             <div class="image-container">
@@ -364,7 +384,9 @@
             <p id="love-message">Bốn năm đã qua, tình yêu của chúng ta vẫn luôn mạnh mẽ và đẹp đẽ!</p>
         </div>
     </div>
-
+    <audio id="heart-click-sound">
+        <source src="sounds/pop-39222.mp3" type="audio/mpeg">
+    </audio>
     <!-- Audio và JavaScript -->
     <audio id="soft-sound">
         <source src="sounds/celebra.mp3" type="audio/mpeg">
@@ -374,30 +396,77 @@
     </audio>
 
     <script>
-        // Tạo hiệu ứng rơi của các trái tim nhỏ với kích thước và thời gian ngẫu nhiên
-        function createHearts() {
-            const container = document.getElementById('heart-container');
+        function createRevealText() {
+            const texts = [
+                "Happy Anniversary",
+                "14/02/2021 - 14/02/2025"
+            ];
+            const container = document.getElementById('happy-text');
+            container.innerHTML = ''; // Xóa nội dung cũ
+
+            texts.forEach((text, lineIndex) => {
+                const lineContainer = document.createElement('div');
+
+                text.split('').forEach((letter, letterIndex) => {
+                    const span = document.createElement('span');
+                    span.textContent = letter;
+                    // Delay tăng dần cho từng chữ cái, và tăng thêm delay cho dòng thứ 2
+                    span.style.animationDelay = `${(lineIndex * text.length + letterIndex) * 0.1}s`;
+                    lineContainer.appendChild(span);
+                });
+
+                // Thêm class để style từng dòng
+                lineContainer.classList.add('reveal-line');
+                lineContainer.classList.add(`reveal-line-${lineIndex + 1}`);
+
+                container.appendChild(lineContainer);
+            });
+        }
+        // Mảng màu sắc đa dạng cho hình tròn
+        const colors = [
+            '#FF6B6B', // Đỏ hồng
+            '#4ECDC4', // Xanh ngọc
+            '#45B7D1', // Xanh dương
+            '#96CEB4', // Xanh lá nhạt
+            '#FFEEAD', // Vàng nhạt
+            '#FFB6B9', // Hồng nhạt
+            '#957DAD', // Tím
+            '#D4A5A5', // Hồng đất
+            '#9EE09E', // Xanh lá
+            '#FF9999'  // Hồng đậm
+        ];
+
+        // Hàm tạo hình tròn rơi
+        function createCircles() {
+            const container = document.getElementById('circle-container');
             for (let i = 0; i < 100; i++) {
-                const heart = document.createElement('div');
-                heart.classList.add('heart');
+                const circle = document.createElement('div');
+                circle.classList.add('circle');
 
-                // Gán kích thước ngẫu nhiên từ 10px đến 30px
+                // Kích thước ngẫu nhiên từ 10px đến 30px
                 const size = Math.random() * 20 + 10;
-                heart.style.width = size + "px";
-                heart.style.height = size + "px";
+                circle.style.width = size + "px";
+                circle.style.height = size + "px";
 
-                // Đặt vị trí ban đầu ngẫu nhiên theo chiều ngang
-                heart.style.left = `${Math.random() * 100}%`;
+                // Màu sắc ngẫu nhiên từ mảng colors
+                const randomColor = colors[Math.floor(Math.random() * colors.length)];
+                circle.style.backgroundColor = randomColor;
 
-                // Thời gian animation ngẫu nhiên từ 8s đến 12s
-                heart.style.animationDuration = (Math.random() * 4 + 8) + "s";
+                // Vị trí ban đầu ngẫu nhiên theo chiều ngang
+                circle.style.left = `${Math.random() * 100}%`;
+
+                // Thời gian animation ngẫu nhiên từ 4s đến 8s
+                circle.style.animationDuration = (Math.random() * 4 + 4) + "s";
 
                 // Delay ngẫu nhiên cho animation
-                heart.style.animationDelay = `${Math.random() * 5}s`;
+                circle.style.animationDelay = `${Math.random() * 5}s`;
 
-                container.appendChild(heart);
+                container.appendChild(circle);
             }
         }
+
+        // Thay thế createHearts() bằng createCircles()
+        createCircles();
 
         let clickCount = 0;
         const requiredClicks = 10;
@@ -475,6 +544,12 @@
         }
 
         function handleHeartClick() {
+
+            // Play heart click sound
+            const heartClickSound = document.getElementById('heart-click-sound');
+            heartClickSound.currentTime = 0; // Reset to start to allow rapid clicks
+            heartClickSound.play();
+
             clickCount++;
             const newColor = getCurrentColor();
             document.getElementById('main-heart').style.setProperty('--heart-color', newColor);
@@ -507,6 +582,7 @@
                 // Ẩn luôn phần hiển thị %
                 document.getElementById('percentage-display').style.display = 'none';
                 popup.style.display = 'block';
+                createRevealText();
                 currentImageIndex = 0;
                 updateAlbumImage();
                 setTimeout(() => {
@@ -540,6 +616,7 @@
         setInterval(() => {
             showNextImage();
         }, 3000);
+
     </script>
 </body>
 
