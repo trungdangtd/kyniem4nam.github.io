@@ -321,6 +321,7 @@
             opacity: 0;
             transform: translateX(-100%);
             animation: revealLetter 0.05s forwards;
+            margin-right: 3px;
         }
 
         .reveal-text .reveal-line-1 {
@@ -385,14 +386,14 @@
         </div>
     </div>
     <audio id="heart-click-sound">
-        <source src="sounds/pop-39222.mp3" type="audio/mpeg">
+        <source src="sounds/pop-39222 (mp3cut.net).mp3" type="audio/mpeg">
     </audio>
     <!-- Audio và JavaScript -->
     <audio id="soft-sound">
-        <source src="sounds/celebra.mp3" type="audio/mpeg">
+        <source src="sounds/celebra (mp3cut.net).mp3" type="audio/mpeg">
     </audio>
     <audio id="background-music" loop>
-        <source src="sounds/duchotanthe.mp3" type="audio/mpeg">
+        <source src="sounds/duchotanthe (mp3cut.net).mp3" type="audio/mpeg">
     </audio>
 
     <script>
@@ -439,26 +440,21 @@
         // Hàm tạo hình tròn rơi
         function createCircles() {
             const container = document.getElementById('circle-container');
+            container.innerHTML = ''; // Clear any existing circles
             for (let i = 0; i < 100; i++) {
                 const circle = document.createElement('div');
                 circle.classList.add('circle');
+                circle.style.display = 'none'; // Initially hide all circles
 
-                // Kích thước ngẫu nhiên từ 10px đến 30px
                 const size = Math.random() * 20 + 10;
                 circle.style.width = size + "px";
                 circle.style.height = size + "px";
 
-                // Màu sắc ngẫu nhiên từ mảng colors
                 const randomColor = colors[Math.floor(Math.random() * colors.length)];
                 circle.style.backgroundColor = randomColor;
 
-                // Vị trí ban đầu ngẫu nhiên theo chiều ngang
                 circle.style.left = `${Math.random() * 100}%`;
-
-                // Thời gian animation ngẫu nhiên từ 4s đến 8s
                 circle.style.animationDuration = (Math.random() * 4 + 4) + "s";
-
-                // Delay ngẫu nhiên cho animation
                 circle.style.animationDelay = `${Math.random() * 5}s`;
 
                 container.appendChild(circle);
@@ -544,10 +540,8 @@
         }
 
         function handleHeartClick() {
-
-            // Play heart click sound
             const heartClickSound = document.getElementById('heart-click-sound');
-            heartClickSound.currentTime = 0; // Reset to start to allow rapid clicks
+            heartClickSound.currentTime = 0;
             heartClickSound.play();
 
             clickCount++;
@@ -559,12 +553,16 @@
                 mainHeart.classList.remove('pulse');
             }, 200);
 
-            // Tính toán % mới (giá trị tối đa 100% khi đạt requiredClicks)
             const targetPercentage = Math.round(Math.min(clickCount, requiredClicks) / requiredClicks * 100);
             animatePercentage(displayedPercentage, targetPercentage, 300);
-            displayedPercentage = targetPercentage; // cập nhật giá trị đã hiển thị
+            displayedPercentage = targetPercentage;
 
+            // Start circle animation when required clicks are reached
             if (clickCount >= requiredClicks) {
+                const circles = document.querySelectorAll('.circle');
+                circles.forEach(circle => {
+                    circle.style.display = 'block'; // Show all circles
+                });
                 openPopup();
             }
         }
@@ -610,7 +608,7 @@
             }
         });
 
-        createHearts();
+        createCircles();
 
         // Tự động chuyển ảnh mỗi 3 giây
         setInterval(() => {
